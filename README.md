@@ -1,176 +1,79 @@
-To build an APK file for your React Native app, you can follow these steps:
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-1. Set up Your Android Environment
-Before you can build an APK, ensure that you have the necessary Android environment set up:
+# Getting Started
 
-Android Studio: Make sure Android Studio and Android SDK are installed.
-Java Development Kit (JDK): Install JDK 11 or later.
-Android Emulator or a connected physical device (which you've already been working on).
-2. Generate a Release Keystore
-To generate a signed APK, you will need a release keystore for signing the app. Run the following command to generate one:
+>**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
 
-bash
-Copy code
-keytool -genkey -v -keystore my-release-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000
-This will prompt you to enter some information, such as passwords and personal details.
+## Step 1: Start the Metro Server
 
-After generating the my-release-key.keystore file, move it to your project’s android/app directory.
+First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
 
-3. Configure the gradle.properties File
-Open your android/gradle.properties file and add the following lines to securely store your signing credentials:
+To start Metro, run the following command from the _root_ of your React Native project:
 
-properties
-Copy code
-MYAPP_RELEASE_STORE_FILE=my-release-key.keystore
-MYAPP_RELEASE_KEY_ALIAS=my-key-alias
-MYAPP_RELEASE_STORE_PASSWORD=your-store-password
-MYAPP_RELEASE_KEY_PASSWORD=your-key-password
-4. Edit android/app/build.gradle
-Now, open android/app/build.gradle and add the signing configuration for release builds under the android block:
+```bash
+# using npm
+npm start
 
-gradle
-Copy code
-android {
-    ...
-    defaultConfig { ... }
-    
-    signingConfigs {
-        release {
-            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
-                storeFile file(MYAPP_RELEASE_STORE_FILE)
-                storePassword MYAPP_RELEASE_STORE_PASSWORD
-                keyAlias MYAPP_RELEASE_KEY_ALIAS
-                keyPassword MYAPP_RELEASE_KEY_PASSWORD
-            }
-        }
-    }
-    
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-5. Build the APK
-Now, open a terminal in your project’s root directory and run:
+# OR using Yarn
+yarn start
+```
 
-bash
-Copy code
-cd android
-./gradlew assembleRelease
-This command will start the build process for a release APK. Once completed, the APK will be available in the following path:
+## Step 2: Start your Application
 
-arduino
-Copy code
-/android/app/build/outputs/apk/release/app-release.apk
-6. Install the APK on a Physical Device
-You can install the APK on your physical device with the following command:
+Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
 
-bash
-Copy code
-adb install android/app/build/outputs/apk/release/app-release.apk
-7. (Optional) Distribute APK
-You can now distribute this APK for testing or upload it to Google Play for production.
+### For Android
 
-Let me know if you need further assistance!
+```bash
+# using npm
+npm run android
 
+# OR using Yarn
+yarn android
+```
 
+### For iOS
 
+```bash
+# using npm
+npm run ios
 
+# OR using Yarn
+yarn ios
+```
 
+If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
 
-You said:
-i want to build without android studio
-ChatGPT said:
-ChatGPT
-You can definitely build a React Native APK without using Android Studio by utilizing the Android command-line tools and gradlew. Here’s how you can do it:
+This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
 
-Prerequisites
-Install JDK: Make sure you have JDK 11 or later installed.
-Set up Android SDK: Ensure the Android SDK is installed and the paths are correctly set up.
-Step 1: Install Command Line Tools for Android SDK
-You can install the necessary Android SDK command-line tools by following these steps:
+## Step 3: Modifying your App
 
-Download Android SDK Command-Line Tools from the official website: Android Command Line Tools.
-Extract the tools to a directory.
-Set up the Android SDK path in your environment variables:
-On macOS/Linux: Add the following lines to your ~/.bashrc or ~/.zshrc file.
-bash
-Copy code
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/emulator
-export PATH=$PATH:$ANDROID_HOME/tools
-export PATH=$PATH:$ANDROID_HOME/tools/bin
-export PATH=$PATH:$ANDROID_HOME/platform-tools
-On Windows: Set ANDROID_HOME and update your PATH environment variable accordingly.
-Step 2: Generate a Release Keystore (if not done already)
-If you haven't generated a release keystore yet, run the following command:
+Now that you have successfully run the app, let's modify it.
 
-bash
-Copy code
-keytool -genkey -v -keystore my-release-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000
-After generating the keystore, place it in your android/app directory.
+1. Open `App.tsx` in your text editor of choice and edit some lines.
+2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
 
-Step 3: Configure Keystore in gradle.properties
-Open android/gradle.properties and add the following lines to reference your keystore:
+   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
 
-properties
-Copy code
-MYAPP_RELEASE_STORE_FILE=my-release-key.keystore
-MYAPP_RELEASE_KEY_ALIAS=my-key-alias
-MYAPP_RELEASE_STORE_PASSWORD=your-store-password
-MYAPP_RELEASE_KEY_PASSWORD=your-key-password
-Step 4: Configure build.gradle
-Open android/app/build.gradle and configure the signingConfigs as shown earlier. Ensure it contains the signing information for the release build.
+## Congratulations! :tada:
 
-gradle
-Copy code
-android {
-    ...
-    signingConfigs {
-        release {
-            storeFile file(MYAPP_RELEASE_STORE_FILE)
-            storePassword MYAPP_RELEASE_STORE_PASSWORD
-            keyAlias MYAPP_RELEASE_KEY_ALIAS
-            keyPassword MYAPP_RELEASE_KEY_PASSWORD
-        }
-    }
+You've successfully run and modified your React Native App. :partying_face:
 
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-Step 5: Build the APK Using gradlew
-Now you can build your APK using gradlew without Android Studio. Go to your project root directory and run:
+### Now what?
 
-bash
-Copy code
-cd android
-./gradlew assembleRelease   # On macOS/Linux
-gradlew.bat assembleRelease # On Windows
-Step 6: Locate the APK
-Once the build is complete, you can find the APK in the following directory:
+- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
+- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
 
-arduino
-Copy code
-android/app/build/outputs/apk/release/app-release.apk
-Step 7: Install the APK (Optional)
-You can install the APK directly onto a connected Android device via ADB (Android Debug Bridge):
+# Troubleshooting
 
-bash
-Copy code
-adb install android/app/build/outputs/apk/release/app-release.apk
-This allows you to test the APK on your device.
+If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
 
-Troubleshooting
-SDK not found: Make sure your Android SDK is installed and ANDROID_HOME is correctly set.
-Missing permissions: If you encounter permission issues, make sure to run the command as an administrator (on Windows) or use sudo (on macOS/Linux).
-Let me know if you run into any issues while building the APK!
+# Learn More
+
+To learn more about React Native, take a look at the following resources:
+
+- [React Native Website](https://reactnative.dev) - learn more about React Native.
+- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
+- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
+- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
