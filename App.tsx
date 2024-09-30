@@ -1,117 +1,157 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import axios from 'axios';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import ProductDetails from './ProductDetails'; // Create this component next
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const Stack = createStackNavigator();
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const HomeScreen = ({ navigation }) => {
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [loading, setLoading] = useState(true);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('https://dummyjson.com/products');
+        setProducts(response.data.products);
+        setFilteredProducts(response.data.products);
+        extractCategories(response.data.products);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data', error);
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const extractCategories = (products) => {
+    const uniqueCategories = ['all', ...new Set(products.map(product => product.category))];
+    setCategories(uniqueCategories);
   };
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+  const filterByCategory = (category) => {
+    if (category === 'all') {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter(product => product.category === category);
+      setFilteredProducts(filtered);
+    }
+    setSelectedCategory(category);
+  };
+
+  const renderProduct = ({ item }) => (
+    <TouchableOpacity
+      style={styles.productContainer}
+      onPress={() => navigation.navigate('ProductDetails', { product: item })}
+    >
+      <Image source={{ uri: item.thumbnail }} style={styles.productImage} />
+      <Text style={styles.productTitle}>{item.title}</Text>
+      <Text>Price: ${item.price}</Text>
+      <Text>Rating: {item.rating} ⭐</Text>
+      <Text>Category: {item.category}</Text>
+      <Text>Stock: {item.stock}</Text>
+    </TouchableOpacity>
   );
-}
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading products...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      {/* Filter Buttons */}
+      <View style={styles.filterContainer}>
+        {categories.map(category => (
+          <TouchableOpacity
+            key={category}
+            style={[
+              styles.filterButton,
+              selectedCategory === category && styles.selectedButton
+            ]}
+            onPress={() => filterByCategory(category)}
+          >
+            <Text style={styles.filterText}>{category.toUpperCase()}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Product List */}
+      <FlatList
+        data={filteredProducts}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderProduct}
+      />
+    </View>
+  );
+};
+
+const App = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Products' }} />
+        <Stack.Screen name="ProductDetails" component={ProductDetails} options={{ title: 'Product Details' }} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    padding: 10,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  sectionDescription: {
+  filterContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+  },
+  filterButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    margin: 5,
+  },
+  selectedButton: {
+    backgroundColor: '#0056b3',
+  },
+  filterText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  productContainer: {
+    padding: 10,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+  },
+  productImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'cover',
+  },
+  productTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
     marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
   },
 });
 
