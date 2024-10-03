@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import axios from 'axios';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -51,11 +58,13 @@ const HomeScreen = ({ navigation }) => {
       onPress={() => navigation.navigate('ProductDetails', { product: item })}
     >
       <Image source={{ uri: item.thumbnail }} style={styles.productImage} />
-      <Text style={styles.productTitle}>{item.title}</Text>
-      <Text>Price: ${item.price}</Text>
-      <Text>Rating: {item.rating} ⭐</Text>
-      <Text>Category: {item.category}</Text>
-      <Text>Stock: {item.stock}</Text>
+      <View style={styles.blackColor}>
+        <Text style={styles.productTitle}>{item.title}</Text>
+        <Text>Price: ${item.price}</Text>
+        <Text>Rating: {item.rating} ⭐</Text>
+        <Text>Category: {item.category}</Text>
+        <Text>Stock: {item.stock}</Text>
+      </View>
     </TouchableOpacity>
   );
 
@@ -111,6 +120,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
+  blackColor: {
+    color: '#000',
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -152,6 +164,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 8,
+    color: '#000',
   },
 });
 
